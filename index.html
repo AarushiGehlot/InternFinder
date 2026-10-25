@@ -1,0 +1,86 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InternFinder</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="header">
+        <h1>InternFinder</h1>
+        <p>Find your next opportunity.</p>
+    </header>
+
+    <main class="container">
+    
+<label for="locationFilter">Filter by location</label>
+<select id="locationFilter">
+
+    <option value="all">All locations</option>
+    <option value="remote">Remote</option>
+    <option value="hybrid">Hybrid</option>
+    <option value="on-site">On-site</option>
+</select>
+
+<label class="saved-filter">
+    <input type="checkbox" id="savedOnly">
+    Show saved internships only
+    <button id="clearSaved" type="button">
+    Clear saved internships
+</button>
+</label>
+
+<p id="noResults" hidden>
+    No internships found. Try another search.
+</p>
+
+
+<div class="section-heading">
+    <h2>Explore internships</h2>
+    <p id="resultsCount">3 internships available</p>
+</div>
+
+        <input
+            type="text"
+            id="searchInput"
+            placeholder="Search internships..."
+        >
+
+        <section class="internship-list">
+            <article class="card" data-id="frontend-1">
+                <h3>Frontend Developer Intern</h3>
+                <p>PixelWorks · Remote</p>
+                <p>₹10,000/month</p>
+                
+<button class="save-button" type="button">☆ Save</button>
+
+                <button>Apply now</button>
+            </article>
+
+            <article class="card" data-id="ui-2">
+                <h3>UI Developer Intern</h3>
+                <p>DesignNest · Hybrid</p>
+                <p>₹8,000/month</p>
+                
+<button class="save-button" type="button">☆ Save</button>
+
+                <button>Apply now</button>
+            </article>
+
+            <article class="card" data-id="web-3">
+                <h3>Web Development Intern</h3>
+                <p>CodeCraft · On-site</p>
+                <p>₹12,000/month</p>
+                
+<button class="save-button" type="button">☆ Save</button>
+
+                <button>Apply now</button>
+            </article>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>

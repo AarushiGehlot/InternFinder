@@ -6,19 +6,49 @@ const savedOnly = document.getElementById("savedOnly");
 const cards = document.querySelectorAll(".card");
 const noResults = document.getElementById("noResults");
 const resultsCount = document.getElementById("resultsCount");
+const clearSaved = document.getElementById("clearSaved");
 
 const STORAGE_KEY = "internFinderSaved";
-let savedIds = new Set(
-    JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]")
-);
-function saveToStorage() {
-    localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify([...savedIds])
+const validIds = ["frontend-1", "ui-2", "web-3"];
+
+let savedIds;
+
+try {
+    const storedIds = JSON.parse(
+        localStorage.getItem(STORAGE_KEY) || "[]"
     );
+
+    savedIds = new Set(
+        Array.isArray(storedIds)
+            ? storedIds.filter(id => validIds.includes(id))
+            : []
+    );
+} catch (error) {
+    savedIds = new Set();
 }
 
-// Filter internships using search, location, and saved status
+// Save internships in browser storage
+function saveToStorage() {
+    try {
+        localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify([...savedIds])
+        );
+    } catch (error) {
+        alert("Unable to save changes in this browser.");
+    }
+}
+
+// Update Save button appearance
+function updateSaveButton(card) {
+    const button = card.querySelector(".save-button");
+    const isSaved = savedIds.has(card.dataset.id);
+
+    button.textContent = isSaved ? "★ Saved" : "☆ Save";
+    button.setAttribute("aria-pressed", String(isSaved));
+}
+
+// Search and filter internships
 function filterInternships() {
     const query = searchInput.value.toLowerCase().trim();
     const location = locationFilter.value;
@@ -26,82 +56,50 @@ function filterInternships() {
     let visibleCount = 0;
 
     cards.forEach(function (card) {
-        const cardText = card.textContent.toLowerCase();
+        const text = card.textContent.toLowerCase();
 
-        const matchesSearch = cardText.includes(query);
+        const matchesSearch = text.includes(query);
 
         const matchesLocation =
-            location === "all" || cardText.includes(location);
+            location === "all" || text.includes(location);
 
         const matchesSaved =
-    !savedOnly.checked || savedIds.has(card.dataset.id);
+            !savedOnly.checked || savedIds.has(card.dataset.id);
 
-        if (matchesSearch && matchesLocation && matchesSaved) {
-            card.style.display = "";
+        const showCard =
+            matchesSearch && matchesLocation && matchesSaved;
+
+        card.hidden = !showCard;
+
+        if (showCard) {
             visibleCount++;
-        } else {
-            card.style.display = "none";
         }
     });
 
-    // Update the number of visible internships
     resultsCount.textContent =
         visibleCount +
         (visibleCount === 1
             ? " internship available"
             : " internships available");
 
-    // Show a message if no internships match
     noResults.hidden = visibleCount > 0;
 }
 
-// Search internships while the user types
+// Search while typing
 searchInput.addEventListener("input", filterInternships);
 
-// Filter internships by location
+// Filter by location
 locationFilter.addEventListener("change", filterInternships);
 
-// Show only saved internships
+// Show saved internships only
 savedOnly.addEventListener("change", filterInternships);
 
-// Save and unsave individual internships
-cards.forEach(function (card) {
-    const saveButton = card.querySelector(".save-button");
-
-    saveButton.addEventListener("click", function () {
-        if (savedCards.has(card)) {
-            savedCards.delete(card);
-            saveButton.textContent = "☆ Save";
-        } else {
-            savedCards.add(card);
-            saveButton.textContent = "★ Saved";
-        }
-
-        filterInternships();
-    });
-});
-
-// Handle Apply button clicks
-
-
-const applyButtons = document.querySelectorAll(".card button");
-
-applyButtons.forEach(function (button) {
-    button.addEventListener("click", function () {
-        alert("Application feature coming soon!");
-    });
-});
-
+// Save and unsave internships
 cards.forEach(function (card) {
     const saveButton = card.querySelector(".save-button");
     const id = card.dataset.id;
 
-    function updateSaveButton() {
-        const isSaved = savedIds.has(id);
-        saveButton.textContent = isSaved ? "★ Saved" : "☆ Save";
-    }
-
-    updateSaveButton();
+    updateSaveButton(card);
 
     saveButton.addEventListener("click", function () {
         if (savedIds.has(id)) {
@@ -111,23 +109,41 @@ cards.forEach(function (card) {
         }
 
         saveToStorage();
-        updateSaveButton();
+        updateSaveButton(card);
         filterInternships();
     });
 });
 
-// Display the initial internship count
-filterInternships();
-const clearSaved = document.getElementById("clearSaved");
-
+// Clear saved internships
 clearSaved.addEventListener("click", function () {
     savedIds.clear();
     saveToStorage();
 
-    cards.forEach(function (card) {
-        const saveButton = card.querySelector(".save-button");
-        saveButton.textContent = "☆ Save";
-    });
-
+    cards.forEach(updateSaveButton);
     filterInternships();
 });
+
+
+cards.forEach(function (card) {
+    const viewButton = card.querySelector(".apply-button");
+
+    viewButton.addEventListener("click", function () {
+        const role = card.querySelector("h3").textContent;
+        const details = card.querySelectorAll("p");
+        const companyAndLocation = details[0].textContent;
+        const stipend = details[1].textContent;
+
+        alert(
+            "INTERNSHIP DETAILS\n\n" +
+            "Role: " + role + "\n" +
+            "Company & Location: " + companyAndLocation + "\n" +
+            "Stipend: " + stipend +
+            "\n\nThis is a sample listing. " +
+            "A real application link is not available yet."
+        );
+    });
+});
+
+
+// Display initial internships
+filterInternships();
